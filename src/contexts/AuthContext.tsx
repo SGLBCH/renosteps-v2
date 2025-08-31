@@ -17,30 +17,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  
-  // Check if Supabase is properly configured
-  const isSupabaseConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
-                               process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabase = createClient()
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      console.warn('Supabase not configured. Authentication disabled.')
-      setLoading(false)
-      return
-    }
-
-    const supabase = createClient()
-
     // Get initial session
     const getSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        setUser(session?.user ?? null)
-      } catch (error) {
-        console.error('Error getting session:', error)
-      } finally {
-        setLoading(false)
-      }
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+      setLoading(false)
     }
 
     getSession()
@@ -54,14 +38,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
 
     return () => subscription.unsubscribe()
-  }, [isSupabaseConfigured])
+  }, [supabase.auth])
 
   const signIn = async (email: string, password: string) => {
-    if (!isSupabaseConfigured) {
-      throw new Error('Supabase is not configured. Please check your environment variables.')
-    }
-    
-    const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -70,11 +49,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string) => {
-    if (!isSupabaseConfigured) {
-      throw new Error('Supabase is not configured. Please check your environment variables.')
-    }
-    
-    const supabase = createClient()
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -83,11 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    if (!isSupabaseConfigured) {
-      throw new Error('Supabase is not configured. Please check your environment variables.')
-    }
-    
-    const supabase = createClient()
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }

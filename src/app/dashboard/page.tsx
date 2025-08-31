@@ -1,19 +1,11 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import AuthPage from '@/components/auth/AuthPage'
+import DashboardLayout from '@/components/dashboard/DashboardLayout'
 
-export default function Home() {
+export default function DashboardPage() {
   const { user, loading } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (user && !loading) {
-      router.push('/dashboard')
-    }
-  }, [user, loading, router])
 
   if (loading) {
     return (
@@ -30,5 +22,5 @@ export default function Home() {
     return <AuthPage />
   }
 
-  return null
+  return <DashboardLayout />
 }
