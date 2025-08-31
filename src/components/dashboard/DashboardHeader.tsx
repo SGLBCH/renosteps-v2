@@ -1,14 +1,22 @@
 'use client'
 
 import { Bars3Icon } from '@heroicons/react/24/outline'
-import CreateProjectButton from './CreateProjectButton'
+
+interface Project {
+  id: string
+  name: string
+  start_date: string
+  end_date: string
+  status: string
+}
 
 interface DashboardHeaderProps {
   onToggleSidebar: () => void
   sidebarOpen: boolean
+  selectedProject?: Project
 }
 
-export default function DashboardHeader({ onToggleSidebar, sidebarOpen }: DashboardHeaderProps) {
+export default function DashboardHeader({ onToggleSidebar, sidebarOpen, selectedProject }: DashboardHeaderProps) {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="px-6 py-4">
@@ -24,12 +32,19 @@ export default function DashboardHeader({ onToggleSidebar, sidebarOpen }: Dashbo
               </button>
             )}
             
-            <h1 className="text-2xl font-bold text-gray-900">
-              No Projects
-            </h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {selectedProject ? selectedProject.name : 'No Projects'}
+              </h1>
+              {selectedProject && (
+                <p className="text-sm text-gray-500">
+                  {new Date(selectedProject.start_date).toLocaleDateString()} - {new Date(selectedProject.end_date).toLocaleDateString()}
+                </p>
+              )}
+            </div>
           </div>
           
-          <CreateProjectButton />
+          {/* Right side content can be added here later */}
         </div>
       </div>
     </header>

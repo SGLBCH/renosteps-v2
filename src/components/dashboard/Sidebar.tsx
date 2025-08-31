@@ -2,15 +2,39 @@
 
 import { User } from '@supabase/supabase-js'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import CreateProjectButton from './CreateProjectButton'
+
+interface Project {
+  id: string
+  name: string
+  start_date: string
+  end_date: string
+  status: string
+}
 
 interface SidebarProps {
   isOpen: boolean
   onToggle: () => void
   user: User | null
   onSignOut: () => void
+  projects: Project[]
+  selectedProjectId: string | null
+  onProjectSelect: (projectId: string) => void
+  onProjectCreated: () => void
 }
 
-export default function Sidebar({ isOpen, onToggle, user, onSignOut }: SidebarProps) {
+export default function Sidebar({ 
+  isOpen, 
+  onToggle, 
+  user, 
+  onSignOut, 
+  projects, 
+  selectedProjectId, 
+  onProjectSelect, 
+  onProjectCreated 
+}: SidebarProps) {
+  const selectedProject = projects.find(p => p.id === selectedProjectId)
+
   return (
     <div className={`bg-gray-800 text-white transition-all duration-300 ${
       isOpen ? 'w-64' : 'w-16'
@@ -34,6 +58,63 @@ export default function Sidebar({ isOpen, onToggle, user, onSignOut }: SidebarPr
         <div className="px-4 py-3 border-b border-gray-700">
           <div className="text-sm text-gray-300">Logged in as</div>
           <div className="font-medium truncate">{user?.email}</div>
+        </div>
+      )}
+
+      {/* Project Selection */}
+      {isOpen && (
+        <div className="px-4 py-3 border-b border-gray-700">
+          <div className="text-sm text-gray-300 mb-2">Select Project</div>
+          {projects.length > 0 ? (
+            <select
+              value={selectedProjectId || ''}
+              onChange={(e) => onProjectSelect(e.target.value)}
+              className="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="text-sm text-gray-400">No projects yet</div>
+          )}
+          
+          {/* Create Project Button */}
+          <div className="mt-3">
+            <CreateProjectButton onProjectCreated={onProjectCreated} />
+          </div>
+        </div>
+      )}
+
+      {/* Project Overview */}
+      {isOpen && selectedProject && (
+        <div className="px-4 py-3 border-b border-gray-700">
+          <div className="text-sm text-gray-300 mb-2">Project Overview</div>
+          <div className="text-sm text-white font-medium mb-1">{selectedProject.name}</div>
+          <div className="text-xs text-gray-400">
+            {new Date(selectedProject.start_date).toLocaleDateString()} - {new Date(selectedProject.end_date).toLocaleDateString()}
+          </div>
+          <div className="text-xs text-gray-400 capitalize">
+            Status: {selectedProject.status}
+          </div>
+        </div>
+      )}
+
+      {/* Budget Overview Placeholder */}
+      {isOpen && selectedProject && (
+        <div className="px-4 py-3 border-b border-gray-700">
+          <div className="text-sm text-gray-300 mb-2">Budget Overview</div>
+          <div className="text-xs text-gray-400">No project selected</div>
+        </div>
+      )}
+
+      {/* Contractors Placeholder */}
+      {isOpen && (
+        <div className="px-4 py-3 border-b border-gray-700">
+          <div className="text-sm text-gray-300 mb-2">Contractors</div>
+          <div className="text-xs text-gray-400">Loading contractors...</div>
         </div>
       )}
 

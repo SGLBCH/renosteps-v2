@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
 import { PlusIcon } from '@heroicons/react/24/outline'
 
-export default function CreateProjectButton() {
+export default function CreateProjectButton({ onProjectCreated }: { onProjectCreated?: () => void }) {
   const { user } = useAuth()
   const [isCreating, setIsCreating] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -60,6 +60,11 @@ export default function CreateProjectButton() {
       setStartDate('')
       setEndDate('')
       setShowModal(false)
+      
+      // Call the callback if provided
+      if (onProjectCreated) {
+        onProjectCreated()
+      }
       
       // You can add a success message or redirect here
       alert('Project created successfully!')

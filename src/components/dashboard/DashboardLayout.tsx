@@ -1,14 +1,72 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { createClient } from '@/lib/supabase'
 import Sidebar from './Sidebar'
 import DashboardHeader from './DashboardHeader'
 import DashboardContent from './DashboardContent'
 
+interface Project {
+  id: string
+  name: string
+  start_date: string
+  end_date: string
+  status: string
+}
+
 export default function DashboardLayout() {
   const { user, signOut } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Fetch user's projects on component mount
+  useEffect(() => {
+    if (user) {
+      fetchProjects()
+    }
+  }, [user])
+
+  const fetchProjects = async () => {
+    if (!user) return
+
+    setLoading(true)
+    try {
+      const supabase = createClient()
+      
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching projects:', error)
+        return
+      }
+
+      setProjects(data || [])
+      
+      // Auto-select the first project if available
+      if (data && data.length > 0 && !selectedProjectId) {
+        setSelectedProjectId(data[0].id)
+      }
+    } catch (error) {
+      console.error('Error fetching projects:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleProjectSelect = (projectId: string) => {
+    setSelectedProjectId(projectId)
+  }
+
+  const handleProjectCreated = () => {
+    fetchProjects() // Refresh projects list
+  }
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
@@ -22,6 +80,14 @@ export default function DashboardLayout() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
@@ -30,6 +96,10 @@ export default function DashboardLayout() {
         onToggle={toggleSidebar}
         user={user}
         onSignOut={handleSignOut}
+        projects={projects}
+        selectedProjectId={selectedProjectId}
+        onProjectSelect={handleProjectSelect}
+        onProjectCreated={handleProjectCreated}
       />
       
       {/* Main Content */}
@@ -37,8 +107,9 @@ export default function DashboardLayout() {
         <DashboardHeader 
           onToggleSidebar={toggleSidebar}
           sidebarOpen={sidebarOpen}
+          selectedProject={projects.find(p => p.id === selectedProjectId)}
         />
-        <DashboardContent />
+        <DashboardContent projectId={selectedProjectId || undefined} />
       </div>
     </div>
   )
