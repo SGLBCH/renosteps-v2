@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import CreateTaskModal from './CreateTaskModal'
+import EditTaskModal from './EditTaskModal'
 import TaskCard from './TaskCard'
 
 interface Task {
@@ -46,6 +47,8 @@ export default function TasksList({ projectId }: TasksListProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [error, setError] = useState<string | null>(null)
 
@@ -98,8 +101,12 @@ export default function TasksList({ projectId }: TasksListProps) {
   }
 
   const handleEditTask = (task: Task) => {
-    // TODO: Implement edit functionality
-    console.log('Edit task:', task)
+    setSelectedTask(task)
+    setShowEditModal(true)
+  }
+
+  const handleTaskUpdated = () => {
+    fetchTasks() // Refresh the tasks list
   }
 
   const handleDeleteTask = async (taskId: string) => {
@@ -228,6 +235,17 @@ export default function TasksList({ projectId }: TasksListProps) {
         onClose={() => setShowCreateModal(false)}
         projectId={projectId}
         onTaskCreated={handleTaskCreated}
+      />
+
+      {/* Edit Task Modal */}
+      <EditTaskModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false)
+          setSelectedTask(null)
+        }}
+        task={selectedTask}
+        onTaskUpdated={handleTaskUpdated}
       />
     </div>
   )
