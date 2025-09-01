@@ -5,21 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline'
 
-interface Task {
-  id: string
-  title: string
-  category: string
-  priority: 'Low' | 'Medium' | 'High' | 'Critical'
-  description: string
-  progress: number
-  status: 'Not Started' | 'In Progress' | 'On Hold' | 'Completed' | 'Cancelled'
-  start_date: string
-  end_date: string
-  estimated_hours?: number
-  materials_needed?: string
-  budget_allocation?: number
-  room_location?: string
-}
+// Removed unused Task interface
 
 interface CreateTaskModalProps {
   isOpen: boolean
@@ -103,7 +89,7 @@ export default function CreateTaskModal({ isOpen, onClose, projectId, onTaskCrea
     try {
       const supabase = createClient()
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('tasks')
         .insert([
           {
@@ -123,7 +109,6 @@ export default function CreateTaskModal({ isOpen, onClose, projectId, onTaskCrea
             dependencies: []
           }
         ])
-        .select()
 
       if (error) {
         console.error('Error creating task:', error)
@@ -208,7 +193,7 @@ export default function CreateTaskModal({ isOpen, onClose, projectId, onTaskCrea
                 <select
                   id="priority"
                   value={priority}
-                  onChange={(e) => setPriority(e.target.value as any)}
+                  onChange={(e) => setPriority(e.target.value as 'Low' | 'Medium' | 'High' | 'Critical')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                   required
                 >
@@ -262,7 +247,7 @@ export default function CreateTaskModal({ isOpen, onClose, projectId, onTaskCrea
                 <select
                   id="status"
                   value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
+                  onChange={(e) => setStatus(e.target.value as 'Not Started' | 'In Progress' | 'On Hold' | 'Completed' | 'Cancelled')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                   required
                 >

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
 import { PlusIcon } from '@heroicons/react/24/outline'
@@ -54,9 +54,9 @@ export default function TasksList({ projectId }: TasksListProps) {
     if (projectId) {
       fetchTasks()
     }
-  }, [projectId])
+  }, [projectId, fetchTasks])
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     if (!user || !projectId) return
 
     setLoading(true)
@@ -91,7 +91,7 @@ export default function TasksList({ projectId }: TasksListProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, projectId, selectedCategory])
 
   const handleTaskCreated = () => {
     fetchTasks() // Refresh the tasks list

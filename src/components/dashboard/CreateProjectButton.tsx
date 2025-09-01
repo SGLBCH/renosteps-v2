@@ -29,7 +29,7 @@ export default function CreateProjectButton({ onProjectCreated }: { onProjectCre
     try {
       const supabase = createClient()
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('projects')
         .insert([
           {
@@ -41,7 +41,6 @@ export default function CreateProjectButton({ onProjectCreated }: { onProjectCre
             created_at: new Date().toISOString()
           }
         ])
-        .select()
 
       if (error) {
         console.error('Error creating project:', error)

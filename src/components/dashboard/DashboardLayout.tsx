@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
 import Sidebar from './Sidebar'
@@ -27,9 +27,9 @@ export default function DashboardLayout() {
     if (user) {
       fetchProjects()
     }
-  }, [user])
+  }, [user, fetchProjects])
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     if (!user) return
 
     setLoading(true)
@@ -58,7 +58,7 @@ export default function DashboardLayout() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, selectedProjectId])
 
   const handleProjectSelect = (projectId: string) => {
     setSelectedProjectId(projectId)

@@ -71,7 +71,7 @@ const getStatusIcon = (status: string) => {
   }
 }
 
-const getCategoryIcon = (category: string) => {
+const getCategoryIcon = () => {
   // You can add custom icons for each category here
   return '🏠'
 }
@@ -97,7 +97,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
       {/* Header */}
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center space-x-2">
-          <span className="text-lg">{getCategoryIcon(task.category)}</span>
+          <span className="text-lg">{getCategoryIcon()}</span>
           <h3 className="font-semibold text-gray-900 text-sm leading-tight">
             {task.title}
           </h3>
