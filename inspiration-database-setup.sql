@@ -101,7 +101,9 @@ CREATE TRIGGER update_inspiration_items_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_inspiration_updated_at();
 
--- Insert some sample categories
-INSERT INTO inspiration_items (user_id, title, description, category, tags) VALUES
-    ('00000000-0000-0000-0000-000000000000', 'Sample Kitchen Inspiration', 'This is a sample inspiration item for demonstration purposes. It shows how the inspiration component will work.', 'Kitchen', ARRAY['modern', 'white', 'minimalist'])
-ON CONFLICT DO NOTHING;
+-- Note: After running this SQL, you'll need to create a storage bucket named 'inspiration-photos' in Supabase Storage
+-- The bucket should be public and have the following policy for authenticated users:
+-- CREATE POLICY "Allow authenticated users to upload photos" ON storage.objects FOR INSERT WITH (auth.role() = 'authenticated');
+-- CREATE POLICY "Allow authenticated users to view photos" ON storage.objects FOR SELECT USING (auth.role() = 'authenticated');
+-- CREATE POLICY "Allow authenticated users to update photos" ON storage.objects FOR UPDATE USING (auth.role() = 'authenticated');
+-- CREATE POLICY "Allow authenticated users to delete photos" ON storage.objects FOR DELETE USING (auth.role() = 'authenticated');
