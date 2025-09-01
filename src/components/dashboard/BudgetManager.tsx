@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
-import { PlusIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, CurrencyDollarIcon, PencilIcon } from '@heroicons/react/24/outline'
 import CreateBudgetItemModal from './CreateBudgetItemModal'
+import EditBudgetItemModal from './EditBudgetItemModal'
 
 interface BudgetItem {
   id: string
@@ -46,6 +47,8 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedBudgetItem, setSelectedBudgetItem] = useState<BudgetItem | null>(null)
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedStatus, setSelectedStatus] = useState<'All' | 'Pending' | 'In Progress' | 'Completed' | 'Cancelled'>('All')
   const [error, setError] = useState<string | null>(null)
@@ -100,6 +103,15 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
   }, [projectId, fetchBudgetItems])
 
   const handleBudgetItemCreated = () => {
+    fetchBudgetItems() // Refresh the budget items list
+  }
+
+  const handleEditBudgetItem = (budgetItem: BudgetItem) => {
+    setSelectedBudgetItem(budgetItem)
+    setShowEditModal(true)
+  }
+
+  const handleBudgetItemUpdated = () => {
     fetchBudgetItems() // Refresh the budget items list
   }
 
@@ -358,6 +370,15 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
                     Priority
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Due Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Receipt/Invoice
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Notes
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -405,13 +426,38 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
                         {item.priority}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-900">
+                        {item.due_date ? new Date(item.due_date).toLocaleDateString() : '-'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-900">
+                        {item.receipt_invoice || '-'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-900 max-w-xs truncate block" title={item.notes || ''}>
+                        {item.notes || '-'}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleDeleteBudgetItem(item.id)}
-                        className="text-red-600 hover:text-red-900 transition-colors"
-                      >
-                        Delete
-                      </button>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditBudgetItem(item)}
+                          className="text-blue-600 hover:text-blue-900 transition-colors"
+                          title="Edit"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteBudgetItem(item.id)}
+                          className="text-red-600 hover:text-red-900 transition-colors"
+                          title="Delete"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -427,6 +473,17 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
         onClose={() => setShowCreateModal(false)}
         projectId={projectId}
         onBudgetItemCreated={handleBudgetItemCreated}
+      />
+
+      {/* Edit Budget Item Modal */}
+      <EditBudgetItemModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false)
+          setSelectedBudgetItem(null)
+        }}
+        budgetItem={selectedBudgetItem}
+        onBudgetItemUpdated={handleBudgetItemUpdated}
       />
     </div>
   )
