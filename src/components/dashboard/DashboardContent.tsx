@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import TasksList from './TasksList'
 import BudgetManager from './BudgetManager'
+import InspirationManager from './InspirationManager'
 
 type TabType = 'dashboard' | 'tasks' | 'gantt' | 'budget' | 'ideas'
 
@@ -63,16 +64,7 @@ export default function DashboardContent({ projectId }: DashboardContentProps) {
       case 'budget':
         return <BudgetManager projectId={projectId} />
       case 'ideas':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Ideas
-            </h2>
-            <p className="text-lg text-gray-500">
-              Project ideas and inspiration coming soon
-            </p>
-          </div>
-        )
+        return <InspirationManager projectId={projectId} />
       default:
         return null
     }
