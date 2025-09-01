@@ -3,6 +3,7 @@
 import { User } from '@supabase/supabase-js'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import CreateProjectButton from './CreateProjectButton'
+import BudgetOverviewCard from './BudgetOverviewCard'
 
 interface Project {
   id: string
@@ -102,12 +103,9 @@ export default function Sidebar({
         </div>
       )}
 
-      {/* Budget Overview Placeholder */}
+      {/* Budget Overview */}
       {isOpen && selectedProject && (
-        <div className="px-4 py-3 border-b border-gray-700">
-          <div className="text-sm text-gray-300 mb-2">Budget Overview</div>
-          <div className="text-xs text-gray-400">No project selected</div>
-        </div>
+        <BudgetOverviewCard projectId={selectedProject.id} />
       )}
 
       {/* Contractors Placeholder */}
