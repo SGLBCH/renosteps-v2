@@ -5,19 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline'
 
-interface BudgetItem {
-  id: string
-  category: string
-  description: string
-  allocated_amount: number
-  actual_spent: number
-  status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled'
-  due_date?: string
-  priority: 'Low' | 'Medium' | 'High' | 'Critical'
-  vendor_contractor?: string
-  receipt_invoice?: string
-  notes?: string
-}
+// Removed unused BudgetItem interface
 
 interface CreateBudgetItemModalProps {
   isOpen: boolean

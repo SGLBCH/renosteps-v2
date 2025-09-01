@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
-import { CurrencyDollarIcon } from '@heroicons/react/24/outline'
+// Removed unused CurrencyDollarIcon import
 
 interface BudgetOverviewCardProps {
   projectId: string
@@ -32,9 +32,9 @@ export default function BudgetOverviewCard({ projectId }: BudgetOverviewCardProp
     if (projectId) {
       fetchBudgetSummary()
     }
-  }, [projectId])
+  }, [projectId, fetchBudgetSummary])
 
-  const fetchBudgetSummary = async () => {
+  const fetchBudgetSummary = useCallback(async () => {
     if (!user || !projectId) return
 
     setLoading(true)
@@ -75,7 +75,7 @@ export default function BudgetOverviewCard({ projectId }: BudgetOverviewCardProp
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, projectId])
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -55,7 +55,7 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
     if (projectId) {
       fetchBudgetItems()
     }
-  }, [projectId])
+  }, [projectId, fetchBudgetItems])
 
   const fetchBudgetItems = useCallback(async () => {
     if (!user || !projectId) return
@@ -295,7 +295,7 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
           <select
             id="statusFilter"
             value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value as any)}
+            onChange={(e) => setSelectedStatus(e.target.value as 'All' | 'Pending' | 'In Progress' | 'Completed' | 'Cancelled')}
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
           >
             {STATUSES.map((status) => (
