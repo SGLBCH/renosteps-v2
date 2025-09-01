@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import TasksList from './TasksList'
+import BudgetManager from './BudgetManager'
 
 type TabType = 'dashboard' | 'tasks' | 'gantt' | 'budget' | 'ideas'
 
@@ -60,19 +61,7 @@ export default function DashboardContent({ projectId }: DashboardContentProps) {
           </div>
         )
       case 'budget':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Budget Management
-            </h2>
-            <p className="text-lg text-gray-500">
-              Budget tracking and management coming soon
-            </p>
-            <p className="text-sm text-gray-400 mt-2">
-              You can already see budget overview in the sidebar
-            </p>
-          </div>
-        )
+        return <BudgetManager projectId={projectId} />
       case 'ideas':
         return (
           <div className="text-center py-12">
