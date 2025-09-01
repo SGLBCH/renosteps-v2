@@ -50,13 +50,6 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
   const [selectedStatus, setSelectedStatus] = useState<'All' | 'Pending' | 'In Progress' | 'Completed' | 'Cancelled'>('All')
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch budget items when component mounts or projectId changes
-  useEffect(() => {
-    if (projectId) {
-      fetchBudgetItems()
-    }
-  }, [projectId, fetchBudgetItems])
-
   const fetchBudgetItems = useCallback(async () => {
     if (!user || !projectId) return
 
@@ -98,6 +91,13 @@ export default function BudgetManager({ projectId }: BudgetManagerProps) {
       setLoading(false)
     }
   }, [user, projectId, selectedCategory, selectedStatus])
+
+  // Fetch budget items when component mounts or projectId changes
+  useEffect(() => {
+    if (projectId) {
+      fetchBudgetItems()
+    }
+  }, [projectId, fetchBudgetItems])
 
   const handleBudgetItemCreated = () => {
     fetchBudgetItems() // Refresh the budget items list

@@ -28,12 +28,6 @@ export default function BudgetOverviewCard({ projectId }: BudgetOverviewCardProp
   })
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (projectId) {
-      fetchBudgetSummary()
-    }
-  }, [projectId, fetchBudgetSummary])
-
   const fetchBudgetSummary = useCallback(async () => {
     if (!user || !projectId) return
 
@@ -76,6 +70,12 @@ export default function BudgetOverviewCard({ projectId }: BudgetOverviewCardProp
       setLoading(false)
     }
   }, [user, projectId])
+
+  useEffect(() => {
+    if (projectId) {
+      fetchBudgetSummary()
+    }
+  }, [projectId, fetchBudgetSummary])
 
   const getStatusColor = (status: string) => {
     switch (status) {
