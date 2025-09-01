@@ -49,13 +49,6 @@ export default function TasksList({ projectId }: TasksListProps) {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch tasks when component mounts or projectId changes
-  useEffect(() => {
-    if (projectId) {
-      fetchTasks()
-    }
-  }, [projectId, fetchTasks])
-
   const fetchTasks = useCallback(async () => {
     if (!user || !projectId) return
 
@@ -92,6 +85,13 @@ export default function TasksList({ projectId }: TasksListProps) {
       setLoading(false)
     }
   }, [user, projectId, selectedCategory])
+
+  // Fetch tasks when component mounts or projectId changes
+  useEffect(() => {
+    if (projectId) {
+      fetchTasks()
+    }
+  }, [projectId, fetchTasks])
 
   const handleTaskCreated = () => {
     fetchTasks() // Refresh the tasks list
