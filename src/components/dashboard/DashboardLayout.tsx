@@ -22,13 +22,6 @@ export default function DashboardLayout() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Fetch user's projects on component mount
-  useEffect(() => {
-    if (user) {
-      fetchProjects()
-    }
-  }, [user, fetchProjects])
-
   const fetchProjects = useCallback(async () => {
     if (!user) return
 
@@ -59,6 +52,13 @@ export default function DashboardLayout() {
       setLoading(false)
     }
   }, [user, selectedProjectId])
+
+  // Fetch user's projects on component mount
+  useEffect(() => {
+    if (user) {
+      fetchProjects()
+    }
+  }, [user, fetchProjects])
 
   const handleProjectSelect = (projectId: string) => {
     setSelectedProjectId(projectId)
