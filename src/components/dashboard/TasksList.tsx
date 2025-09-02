@@ -22,6 +22,8 @@ interface Task {
   materials_needed?: string
   budget_allocation?: number
   room_location?: string
+  completed: boolean
+  completedAt?: string
 }
 
 interface TasksListProps {
@@ -135,6 +137,55 @@ export default function TasksList({ projectId }: TasksListProps) {
     }
   }
 
+  const handleToggleComplete = async (taskId: string, completed: boolean) => {
+    try {
+      const supabase = createClient()
+      
+      const updateData: {
+        completed: boolean
+        status: 'Not Started' | 'In Progress' | 'On Hold' | 'Completed' | 'Cancelled'
+        completedAt: string | null
+      } = {
+        completed,
+        status: completed ? 'Completed' : 'Not Started',
+        completedAt: null
+      }
+
+      // Set completedAt when marking as completed
+      if (completed) {
+        updateData.completedAt = new Date().toISOString()
+      } else {
+        updateData.completedAt = null
+      }
+
+      const { error } = await supabase
+        .from('tasks')
+        .update(updateData)
+        .eq('id', taskId)
+
+      if (error) {
+        console.error('Error updating task completion:', error)
+        alert('Failed to update task')
+        return
+      }
+
+      // Update local state
+      setTasks(tasks.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              completed, 
+              status: completed ? 'Completed' : 'Not Started',
+              completedAt: completed ? new Date().toISOString() : undefined
+            }
+          : task
+      ))
+    } catch (error) {
+      console.error('Error updating task completion:', error)
+      alert('Failed to update task')
+    }
+  }
+
   const filteredTasks = selectedCategory === 'All' 
     ? tasks 
     : tasks.filter(task => task.category === selectedCategory)
@@ -224,6 +275,7 @@ export default function TasksList({ projectId }: TasksListProps) {
               task={task}
               onEdit={handleEditTask}
               onDelete={handleDeleteTask}
+              onToggleComplete={handleToggleComplete}
             />
           ))}
         </div>

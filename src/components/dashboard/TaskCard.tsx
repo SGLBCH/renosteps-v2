@@ -1,6 +1,7 @@
 'use client'
 
 import { CalendarIcon, ClockIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import { CheckIcon } from '@heroicons/react/24/solid'
 
 interface Task {
   id: string
@@ -16,12 +17,15 @@ interface Task {
   materials_needed?: string
   budget_allocation?: number
   room_location?: string
+  completed: boolean
+  completedAt?: string
 }
 
 interface TaskCardProps {
   task: Task
   onEdit?: (task: Task) => void
   onDelete?: (taskId: string) => void
+  onToggleComplete?: (taskId: string, completed: boolean) => void
 }
 
 const getPriorityColor = (priority: string) => {
@@ -76,7 +80,7 @@ const getCategoryIcon = () => {
   return '🏠'
 }
 
-export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+export default function TaskCard({ task, onEdit, onDelete, onToggleComplete }: TaskCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -92,21 +96,53 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
     return 'bg-gray-300'
   }
 
+  const handleToggleComplete = () => {
+    if (onToggleComplete) {
+      onToggleComplete(task.id, !task.completed)
+    }
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleToggleComplete()
+    }
+  }
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+    <div className={`bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-300 ${
+      task.completed ? 'opacity-50' : 'opacity-100'
+    }`}>
       {/* Header */}
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center space-x-2">
+          {/* Priority Badge - moved to left */}
+          <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(task.priority)}`}>
+            {task.priority}
+          </span>
           <span className="text-lg">{getCategoryIcon()}</span>
-          <h3 className="font-semibold text-gray-900 text-sm leading-tight">
+          <h3 className={`font-semibold text-gray-900 text-sm leading-tight transition-all duration-300 ${
+            task.completed ? 'line-through text-gray-500' : ''
+          }`}>
             {task.title}
           </h3>
         </div>
         
-        {/* Priority Badge */}
-        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(task.priority)}`}>
-          {task.priority}
-        </span>
+        {/* Complete Checkbox - moved to right */}
+        <button
+          onClick={handleToggleComplete}
+          onKeyDown={handleKeyDown}
+          role="checkbox"
+          aria-checked={task.completed}
+          aria-label={`Mark task "${task.title}" as ${task.completed ? 'incomplete' : 'complete'}`}
+          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+            task.completed 
+              ? 'bg-green-500 border-green-500 text-white' 
+              : 'border-gray-300 hover:border-green-400'
+          }`}
+        >
+          {task.completed && <CheckIcon className="w-4 h-4" />}
+        </button>
       </div>
 
       {/* Category */}
@@ -156,6 +192,13 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           <span>End: {formatDate(task.end_date)}</span>
         </div>
       </div>
+
+      {/* Completed Date */}
+      {task.completed && task.completedAt && (
+        <div className="mb-3 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+          ✅ Completed: {formatDate(task.completedAt)}
+        </div>
+      )}
 
       {/* Additional Info */}
       <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-3">

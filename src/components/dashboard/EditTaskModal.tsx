@@ -19,6 +19,8 @@ interface Task {
   materials_needed?: string
   budget_allocation?: number
   room_location?: string
+  completed: boolean
+  completedAt?: string
 }
 
 interface EditTaskModalProps {
