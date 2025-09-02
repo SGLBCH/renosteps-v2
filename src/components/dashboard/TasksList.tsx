@@ -141,48 +141,75 @@ export default function TasksList({ projectId }: TasksListProps) {
     try {
       const supabase = createClient()
       
+      // Prepare update data - only completed and completedAt, no undefined values
       const updateData: {
         completed: boolean
-        status: 'Not Started' | 'In Progress' | 'On Hold' | 'Completed' | 'Cancelled'
         completedAt: string | null
       } = {
         completed,
-        status: completed ? 'Completed' : 'Not Started',
-        completedAt: null
+        completedAt: completed ? new Date().toISOString() : null
       }
 
-      // Set completedAt when marking as completed
-      if (completed) {
-        updateData.completedAt = new Date().toISOString()
-      } else {
-        updateData.completedAt = null
-      }
+      console.log('Updating task:', taskId, 'with data:', updateData)
+      console.log('User ID:', user?.id)
 
-      const { error } = await supabase
+      // First, let's check if the task exists and user has access
+      const { data: existingTask, error: fetchError } = await supabase
         .from('tasks')
-        .update(updateData)
+        .select('id, project_id, title')
         .eq('id', taskId)
+        .single()
 
-      if (error) {
-        console.error('Error updating task completion:', error)
-        alert('Failed to update task')
+      if (fetchError) {
+        console.error('Error fetching task for update:', fetchError)
+        alert(`Task not found or access denied: ${fetchError.message}`)
         return
       }
 
-      // Update local state
+      console.log('Found task:', existingTask)
+
+      // Use proper Supabase JS syntax with select and single
+      const { data, error } = await supabase
+        .from('tasks')
+        .update(updateData)
+        .eq('id', taskId)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Supabase error updating task completion:', error)
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        
+        // Check if it's an RLS policy issue
+        if (error.code === 'PGRST204' || error.message.includes('permission denied')) {
+          alert('Permission denied: You can only update tasks in your own projects.')
+        } else {
+          alert(`Failed to update task: ${error.message}`)
+        }
+        return
+      }
+
+      console.log('Successfully updated task:', data)
+
+      // Update local state with the returned data
       setTasks(tasks.map(task => 
         task.id === taskId 
           ? { 
               ...task, 
-              completed, 
-              status: completed ? 'Completed' : 'Not Started',
-              completedAt: completed ? new Date().toISOString() : undefined
+              completed: data.completed,
+              status: data.completed ? 'Completed' : 'Not Started',
+              completedAt: data.completedAt || undefined
             }
           : task
       ))
     } catch (error) {
-      console.error('Error updating task completion:', error)
-      alert('Failed to update task')
+      console.error('Unexpected error updating task completion:', error)
+      alert('Failed to update task. Please try again.')
     }
   }
 
