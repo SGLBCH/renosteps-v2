@@ -154,11 +154,7 @@ export default function EditInspirationModal({
       return
     }
 
-    const totalPhotos = existingPhotos.length - photosToDelete.length + newPhotos.length
-    if (totalPhotos === 0) {
-      setError('At least one photo is required')
-      return
-    }
+    // Photos are now optional - no validation needed
 
     setLoading(true)
     setError(null)
@@ -197,7 +193,7 @@ export default function EditInspirationModal({
         }
       }
 
-      // Upload new photos
+      // Upload new photos (only if new photos exist)
       if (newPhotos.length > 0) {
         const photoPromises = newPhotos.map(async (photo, index) => {
           const fileName = `${inspiration.id}/${Date.now()}-${index}-${photo.name}`
@@ -207,6 +203,7 @@ export default function EditInspirationModal({
             .upload(fileName, photo)
 
           if (uploadError) {
+            console.error('Error uploading photo:', uploadError)
             throw uploadError
           }
 
@@ -386,7 +383,7 @@ export default function EditInspirationModal({
           {/* Photo Management */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Photos ({totalPhotos}/5)
+              Photos (optional, {totalPhotos}/5)
             </label>
             
             {/* Existing Photos */}

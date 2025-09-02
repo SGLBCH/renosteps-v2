@@ -112,10 +112,7 @@ export default function CreateInspirationModal({
       return
     }
 
-    if (photos.length === 0) {
-      setError('At least one photo is required')
-      return
-    }
+    // Photos are now optional - no validation needed
 
     setLoading(true)
     setError(null)
@@ -144,41 +141,44 @@ export default function CreateInspirationModal({
         return
       }
 
-      // Upload photos to Supabase Storage
-      const photoPromises = photos.map(async (photo, index) => {
-        const fileName = `${inspirationItem.id}/${Date.now()}-${index}-${photo.name}`
-        
-        const { error: uploadError } = await supabase.storage
-          .from('inspiration-photos')
-          .upload(fileName, photo)
+      // Upload photos to Supabase Storage (only if photos exist)
+      if (photos.length > 0) {
+        const photoPromises = photos.map(async (photo, index) => {
+          const fileName = `${inspirationItem.id}/${Date.now()}-${index}-${photo.name}`
+          
+          const { error: uploadError } = await supabase.storage
+            .from('inspiration-photos')
+            .upload(fileName, photo)
 
-        if (uploadError) {
-          throw uploadError
+          if (uploadError) {
+            console.error('Error uploading photo:', uploadError)
+            throw uploadError
+          }
+
+          // Get public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('inspiration-photos')
+            .getPublicUrl(fileName)
+
+          return {
+            inspiration_id: inspirationItem.id,
+            photo_url: publicUrl,
+            photo_order: index
+          }
+        })
+
+        const photoData = await Promise.all(photoPromises)
+
+        // Insert photo records
+        const { error: photosError } = await supabase
+          .from('inspiration_photos')
+          .insert(photoData)
+
+        if (photosError) {
+          console.error('Error saving photo records:', photosError)
+          setError('Failed to save photos')
+          return
         }
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('inspiration-photos')
-          .getPublicUrl(fileName)
-
-        return {
-          inspiration_id: inspirationItem.id,
-          photo_url: publicUrl,
-          photo_order: index
-        }
-      })
-
-      const photoData = await Promise.all(photoPromises)
-
-      // Insert photo records
-      const { error: photosError } = await supabase
-        .from('inspiration_photos')
-        .insert(photoData)
-
-      if (photosError) {
-        console.error('Error saving photo records:', photosError)
-        setError('Failed to save photos')
-        return
       }
 
       onInspirationCreated()
@@ -341,7 +341,7 @@ export default function CreateInspirationModal({
           {/* Photo Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Photos * (up to 5)
+              Photos (optional, up to 5)
             </label>
             
             {/* Photo Upload Area */}
