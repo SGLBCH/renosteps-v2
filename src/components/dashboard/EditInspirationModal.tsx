@@ -199,9 +199,14 @@ export default function EditInspirationModal({
         const photoPromises = newPhotos.map(async (photo, index) => {
           const fileName = generateStorageFileName(inspiration.id, photo.name, index)
           
+          // Correcte Supabase upload call met contentType
           const { error: uploadError } = await supabase.storage
             .from('inspiration-photos')
-            .upload(fileName, photo)
+            .upload(fileName, photo, {
+              contentType: photo.type,
+              cacheControl: '3600',
+              upsert: false // Don't overwrite existing files
+            })
 
           if (uploadError) {
             console.error('Error uploading photo:', uploadError)
