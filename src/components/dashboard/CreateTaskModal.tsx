@@ -106,9 +106,7 @@ export default function CreateTaskModal({ isOpen, onClose, projectId, onTaskCrea
             materials_needed: materialsNeeded.trim() || null,
             budget_allocation: budgetAllocation ? parseFloat(budgetAllocation) : null,
             room_location: roomLocation.trim() || null,
-            dependencies: [],
-            completed: false,
-            completedAt: null
+            dependencies: []
           }
         ])
 

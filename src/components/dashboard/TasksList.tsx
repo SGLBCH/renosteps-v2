@@ -138,6 +138,7 @@ export default function TasksList({ projectId }: TasksListProps) {
   }
 
   const handleToggleComplete = async (taskId: string, completed: boolean) => {
+
     try {
       const supabase = createClient()
       
@@ -162,7 +163,7 @@ export default function TasksList({ projectId }: TasksListProps) {
 
       if (fetchError) {
         console.error('Error fetching task for update:', fetchError)
-        alert(`Task not found or access denied: ${fetchError.message}`)
+        alert(`Task not found or access denied: ${fetchError?.message || 'Unknown error'}`)
         return
       }
 
@@ -179,17 +180,17 @@ export default function TasksList({ projectId }: TasksListProps) {
       if (error) {
         console.error('Supabase error updating task completion:', error)
         console.error('Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
+          message: error?.message,
+          details: error?.details,
+          hint: error?.hint,
+          code: error?.code
         })
         
         // Check if it's an RLS policy issue
-        if (error.code === 'PGRST204' || error.message.includes('permission denied')) {
+        if (error?.code === 'PGRST204' || error?.message?.includes('permission denied')) {
           alert('Permission denied: You can only update tasks in your own projects.')
         } else {
-          alert(`Failed to update task: ${error.message}`)
+          alert(`Failed to update task: ${error?.message || 'Unknown error'}`)
         }
         return
       }
