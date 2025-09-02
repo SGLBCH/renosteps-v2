@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase'
+import { generateStorageFileName } from '@/lib/fileUtils'
 import { XMarkIcon, PhotoIcon, XMarkIcon as XIcon } from '@heroicons/react/24/outline'
 
 interface CreateInspirationModalProps {
@@ -144,7 +145,7 @@ export default function CreateInspirationModal({
       // Upload photos to Supabase Storage (only if photos exist)
       if (photos.length > 0) {
         const photoPromises = photos.map(async (photo, index) => {
-          const fileName = `${inspirationItem.id}/${Date.now()}-${index}-${photo.name}`
+          const fileName = generateStorageFileName(inspirationItem.id, photo.name, index)
           
           const { error: uploadError } = await supabase.storage
             .from('inspiration-photos')
